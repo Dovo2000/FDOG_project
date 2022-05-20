@@ -12,9 +12,12 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 StartPos;
     private bool endGame = false;
-
+    private CharacterController controller;
+    private float horizontalInput;
+    private float verticalInput;
     private void Start()
     {
+        controller = GetComponent<CharacterController>();
         StartPos = transform.position;
     }
 
@@ -27,21 +30,25 @@ public class PlayerController : MonoBehaviour
         }
         if (!endGame)
         {
+            GetInputs();
             MovePlayer();
         }
+        
+    }
 
+    void GetInputs()
+    {
+        horizontalInput = Input.GetAxis("Horizontal");
+        verticalInput = Input.GetAxis("Vertical");  
     }
 
     void MovePlayer()
     {
+        Vector3 movementDirection = new Vector3(horizontalInput, 0, verticalInput);
+        float magnitude = Mathf.Clamp01(movementDirection.magnitude) * playerSpeed;
+        movementDirection.Normalize();
 
-        if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
-        {
-            Vector3 direction = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")).normalized;
-            transform.Translate(direction * Time.deltaTime * playerSpeed, Space.World);
-            transform.LookAt(direction + transform.position);
-        }
-        
+        transform.Translate(movementDirection * magnitude * Time.deltaTime, Space.World);
     }
 
     public void EndGame()
